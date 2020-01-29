@@ -39,7 +39,7 @@
 	url = https://github.com/opensemanticsearch/spacy-services.deb.git
 [submodule "src/neo4j.deb"]
 	path = src/neo4j.deb
-	url = https://github.com/opensemanticsearch/neo4j.deb
+	url = git@github.com:opensemanticsearch/neo4j.deb.git
 [submodule "src/spacy-services"]
 	path = src/spacy-services
-	url = https://github.com/opensemanticsearch/spacy-services
+	url = git@github.com:opensemanticsearch/spacy-services.git
