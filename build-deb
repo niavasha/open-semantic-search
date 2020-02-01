@@ -13,6 +13,7 @@ mkdir ${BUILDDIR}/opt
 
 
 cp -a DEBIAN ${BUILDDIR}/
+sed -i "s/^Version: .*/Version: ${VERSION}/g" ${BUILDDIR}/DEBIAN/control
 
 
 #
