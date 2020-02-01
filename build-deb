@@ -4,6 +4,7 @@ VERSION=`date +%y.%m.%d`
 PACKAGE=open-semantic-search_${VERSION}.deb
 BUILDDIR=/tmp/open-semantic-search-$$.deb
 INCLUDE_PACKAGES="solr.deb tika-server.deb spacy-services.deb open-semantic-etl neo4j.deb solr-php-ui open-semantic-search-apps"
+NEO4JREL=neo4j-community-4.0.0-unix.tar.gz
 
 
 echo "Building ${PACKAGE} in temp directory ${BUILDDIR}"
@@ -134,7 +135,10 @@ rmdir org/apache
 rmdir org
 
 # set rights
-chown -R root:root ${BUILDDIR}/
+# changed to current user to ensure consistent uid+gid and so can run build as non-root
+# will need to move chown to root to postinst if still needs
+chown -R $(id -u):$(id -g) ${BUILDDIR}/
+
 chmod g+r ${BUILDDIR}/usr/share/java/tika-server*
 chmod o+r ${BUILDDIR}/usr/share/java/tika-server*
 
@@ -161,7 +165,7 @@ cp -a src/open-semantic-entity-search-api/src/solr/* ${BUILDDIR}/var/solr/data/
 #
 
 cp -a src/spacy-services.deb/etc ${BUILDDIR}/
-cp -a src/spacy-services.deb/src/spacy-services ${BUILDDIR}/usr/lib/python3/dist-packages/
+cp -a src/spacy-services ${BUILDDIR}/usr/lib/python3/dist-packages/
 
 
 #
@@ -194,6 +198,14 @@ cp -a src/solr-ontology-tagger/src/* ${BUILDDIR}/usr/lib/python3/dist-packages/
 # Include Neo4j
 #
 
+# if not yet there, download neo4j binary release
+if [ ! -f "src/neo4j.deb/src/${NEO4JREL}" ]; then
+    echo "Downloading neo4j"
+    mkdir -p src/neo4j.deb/src/
+    wget -O src/neo4j.deb/src/${NEO4JREL} "https://neo4j.com/artifact.php?name=${NEO4JREL}"
+fi
+
+tar xzf src/neo4j.deb/src/${NEO4JREL} -C src/neo4j.deb/
 mkdir -p ${BUILDDIR}/opt/neo4j
 cp -a src/neo4j.deb/etc ${BUILDDIR}/
 cp -a src/neo4j.deb/neo4j*/* ${BUILDDIR}/opt/neo4j/
