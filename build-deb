@@ -4,7 +4,7 @@ VERSION=`date +%y.%m.%d`
 PACKAGE=open-semantic-search_${VERSION}.deb
 BUILDDIR=/tmp/open-semantic-search-$$.deb
 INCLUDE_PACKAGES="solr.deb tika-server.deb spacy-services.deb open-semantic-etl neo4j.deb solr-php-ui open-semantic-search-apps"
-NEO4JREL=neo4j-community-4.0.0-unix.tar.gz
+NEO4JREL=neo4j-community-3.5.2-unix.tar.gz
 
 
 echo "Building ${PACKAGE} in temp directory ${BUILDDIR}"
@@ -135,13 +135,6 @@ rmdir org/apache/tika
 rmdir org/apache
 rmdir org
 
-# set rights
-# changed to current user to ensure consistent uid+gid and so can run build as non-root
-# will need to move chown to root to postinst if still needs
-chown -R $(id -u):$(id -g) ${BUILDDIR}/
-
-chmod g+r ${BUILDDIR}/usr/share/java/tika-server*
-chmod o+r ${BUILDDIR}/usr/share/java/tika-server*
 
 
 #
@@ -214,8 +207,18 @@ mv ${BUILDDIR}/etc/neo4j/neo4j.conf ${BUILDDIR}/opt/neo4j/conf/neo4j.conf
 rmdir ${BUILDDIR}/etc/neo4j
 ln -s /opt/neo4j/conf ${BUILDDIR}/etc/neo4j
 
+# set rights
+# changed to current user to ensure consistent uid+gid and so can run build as non-root
+# will need to move chown to root to postinst if still needs
+#sudo chown -R $(id -u):$(id -g) ${BUILDDIR}/
+echo "Executing sudo to set permissions"
+sudo chown -RP root:root ${BUILDDIR}/
+
+sudo chmod g+r ${BUILDDIR}/usr/share/java/tika-server*
+sudo chmod o+r ${BUILDDIR}/usr/share/java/tika-server*
 #
+# Link this after chown otherwise build-env becomes a mess
 # Build deb
 #
 
-dpkg -b ${BUILDDIR} ${PACKAGE}
+dpkg -b ${BUILDDIR} /tmp/${PACKAGE}
